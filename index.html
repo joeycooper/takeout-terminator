@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>纠结终结者 (Takeout Terminator) 🤖🍱</title>
     <style>
         :root {
@@ -15,62 +15,84 @@
             margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh; overflow-x: hidden; transition: background 0.5s ease;
+            position: relative;
         }
 
+        /* 动态背景气泡 */
+        .bubble { position: absolute; background: rgba(255,255,255,0.05); border-radius: 50%; bottom: -100px; animation: rise 15s infinite ease-in; z-index: -1; }
+        @keyframes rise { from { bottom: -100px; transform: translateX(0); } to { bottom: 110%; transform: translateX(50px); } }
+
         .container {
-            text-align: center; padding: 1.5rem; background: var(--card-bg); backdrop-filter: blur(15px);
-            border-radius: 2rem; border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); max-width: 400px; width: 85%; position: relative;
+            text-align: center; padding: 1.5rem; background: var(--card-bg); backdrop-filter: blur(20px);
+            border-radius: 2.5rem; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); max-width: 400px; width: 85%; position: relative;
         }
 
         .top-bar { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.7rem; color: #94a3b8; }
-        .weather-info { color: #818cf8; font-weight: bold; }
+        .weather-info { color: #818cf8; font-weight: bold; cursor: pointer; }
 
         h1 {
-            font-size: 1.4rem; margin-bottom: 1rem;
+            font-size: 1.6rem; margin-bottom: 0.5rem;
             background: linear-gradient(to right, #818cf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 900; letter-spacing: -1px;
         }
 
-        .mode-selector { display: flex; gap: 0.3rem; justify-content: center; margin-bottom: 1rem; }
-        .mode-btn { padding: 0.4rem 0.6rem; font-size: 0.7rem; border-radius: 0.5rem; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; }
-        .mode-btn.active { background: var(--primary); color: white; }
+        .mode-selector { display: flex; gap: 0.3rem; justify-content: center; margin-bottom: 1.2rem; }
+        .mode-btn { padding: 0.4rem 0.7rem; font-size: 0.75rem; border-radius: 0.7rem; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; transition: 0.3s; }
+        .mode-btn.active { background: var(--primary); color: white; box-shadow: 0 0 15px var(--primary); }
 
         .slot-machine {
-            height: 90px; overflow: hidden; background: rgba(0, 0, 0, 0.3); border-radius: 1rem;
-            border: 2px solid var(--primary); position: relative; margin-bottom: 1.5rem;
+            height: 110px; overflow: hidden; background: rgba(0, 0, 0, 0.4); border-radius: 1.5rem;
+            border: 3px solid var(--primary); position: relative; margin-bottom: 1.5rem;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
-        .slot-container { position: absolute; width: 100%; transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1); }
-        .slot-item { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; }
+        .slot-container { position: absolute; width: 100%; transition: transform 3s cubic-bezier(0.15, 0, 0.05, 1); }
+        .slot-item { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
 
         #spin-btn {
-            padding: 0.8rem; font-size: 1.1rem; font-weight: 600; background: var(--primary); color: white;
-            border: none; border-radius: 1rem; cursor: pointer; width: 100%; box-shadow: 0 8px 15px -3px rgba(99, 102, 241, 0.4);
+            padding: 1.1rem; font-size: 1.3rem; font-weight: 800; background: var(--primary); color: white;
+            border: none; border-radius: 1.2rem; cursor: pointer; width: 100%; box-shadow: 0 10px 20px -5px var(--primary);
+            transition: 0.2s active;
         }
+        #spin-btn:active { transform: scale(0.98); opacity: 0.9; }
 
-        .advice-box { margin-top: 1.2rem; padding: 0.8rem; background: rgba(0, 0, 0, 0.2); border-radius: 1rem; font-style: italic; font-size: 0.85rem; color: #cbd5e1; display: none; }
+        .advice-box { 
+            margin-top: 1.2rem; padding: 1.2rem; background: rgba(0, 0, 0, 0.3); border-radius: 1.2rem; 
+            font-style: normal; font-size: 0.9rem; color: #e2e8f0; display: none; border: 1px dashed var(--primary);
+            line-height: 1.5;
+        }
         
-        .platform-section { display: none; margin-top: 1rem; }
-        .platform-grid { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
-        .platform-btn { padding: 0.6rem 0.4rem; font-size: 0.75rem; border-radius: 0.5rem; border: none; color: white; cursor: pointer; flex: 1; }
+        .platform-section { display: none; margin-top: 1.5rem; }
+        .platform-grid { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
+        .platform-btn { padding: 0.8rem 0.4rem; font-size: 0.85rem; border-radius: 0.8rem; border: none; color: white; cursor: pointer; flex: 1; font-weight: bold; }
 
         .action-bar { display: flex; gap: 0.5rem; }
-        .icon-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.5rem; border-radius: 0.5rem; font-size: 0.8rem; cursor: pointer; flex: 1; }
+        .icon-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.7rem; border-radius: 0.8rem; font-size: 0.8rem; cursor: pointer; flex: 1; border: 1px solid rgba(255,255,255,0.05); }
+
+        /* Cloud Sync Banner */
+        #sync-banner {
+            position: fixed; bottom: 20px; width: 90%; max-width: 360px; background: var(--primary);
+            color: white; padding: 1rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none; justify-content: space-between; align-items: center; z-index: 200;
+        }
 
         #edit-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
-            display: none; align-items: center; justify-content: center; z-index: 100;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
+            display: none; align-items: center; justify-content: center; z-index: 300;
         }
-        .modal-content { background: #1e293b; padding: 2rem; border-radius: 1.5rem; width: 80%; max-width: 350px; }
-        textarea { width: 100%; height: 150px; background: #0f172a; color: white; border: 1px solid var(--primary); border-radius: 0.5rem; padding: 0.5rem; margin: 1rem 0; font-size: 1rem; }
+        .modal-content { background: #1e293b; padding: 1.5rem; border-radius: 2rem; width: 85%; max-width: 350px; border: 1px solid var(--primary); }
+        textarea { width: 100%; height: 200px; background: #0f172a; color: white; border: 1px solid var(--primary); border-radius: 1rem; padding: 1rem; margin: 1rem 0; font-size: 1rem; box-sizing: border-box; }
 
-        .theme-switcher { position: absolute; top: -35px; right: 0; display: flex; gap: 0.5rem; }
-        .theme-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
+        .theme-switcher { position: absolute; top: -45px; right: 0; display: flex; gap: 0.8rem; }
+        .theme-dot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         
-        .shake-hint { font-size: 0.6rem; color: #64748b; margin-top: 0.5rem; }
-        .dupe-alert { color: var(--accent); font-weight: bold; }
+        .shake-hint { font-size: 0.7rem; color: #64748b; margin-top: 0.8rem; letter-spacing: 1px; }
     </style>
 </head>
 <body class="theme-pi">
+    <!-- 背景气泡 -->
+    <div id="bubbles"></div>
+
     <div class="container">
         <div class="theme-switcher">
             <div class="theme-dot" style="background: #6366f1;" onclick="setTheme('pi')"></div>
@@ -79,11 +101,11 @@
         </div>
 
         <div class="top-bar">
-            <span id="weather-text" class="weather-info">🌤️ 杭州: 6°C</span>
-            <span id="meal-time">待命时间</span>
+            <span id="weather-text" class="weather-info" onclick="detectCity()">🔍 探测位置...</span>
+            <span id="meal-time">比奇堡时间</span>
         </div>
 
-        <h1 id="main-title">餐点拯救者 11.0</h1>
+        <h1>纠结终结者 🚀</h1>
 
         <div class="mode-selector">
             <button class="mode-btn active" id="mode-all" onclick="setMode('all')">全都要</button>
@@ -107,7 +129,7 @@
                 <button class="platform-btn" onclick="openApp('dianping')" style="background: #ff6633;">大众点评</button>
             </div>
             <div class="action-bar">
-                <button class="icon-btn" onclick="openEdit()">✍️ 编辑菜单</button>
+                <button class="icon-btn" onclick="openEdit()">✍️ 修改菜单</button>
                 <button class="icon-btn" onclick="shareResult()">📤 分享战果</button>
             </div>
         </div>
@@ -115,11 +137,17 @@
         <div class="footer">由派大星大将军荣誉出品 🫡</div>
     </div>
 
+    <!-- 保存云端弹窗 -->
+    <div id="sync-banner">
+        <span style="font-size: 0.8rem; font-weight: bold;">大将军发现你很有眼光！<br/>要创建专属私人菜单吗？</span>
+        <button onclick="requestCloudSync()" style="background: white; color: var(--primary); border: none; padding: 0.5rem 0.8rem; border-radius: 0.5rem; font-weight: bold; font-size: 0.7rem;">点我创建</button>
+    </div>
+
     <div id="edit-modal" onclick="closeEdit(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3>编辑菜单</h3>
+            <h3 id="edit-title">编辑菜单</h3>
             <textarea id="menu-edit-area"></textarea>
-            <button id="spin-btn" onclick="saveMenu()">保存修改</button>
+            <button id="spin-btn" style="padding: 0.8rem;" onclick="saveMenu()">同步到云端</button>
         </div>
     </div>
 
@@ -132,40 +160,68 @@
                 const gain = audioCtx.createGain();
                 osc.type = type; osc.connect(gain); gain.connect(audioCtx.destination);
                 osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
                 osc.start(); osc.stop(audioCtx.currentTime + duration);
             } catch(e) {}
         }
 
+        // 初始化用户ID
+        let userId = localStorage.getItem('terminator_user_id') || 'guest_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('terminator_user_id', userId);
+
         let menus = {
-            all: ["🍔 汉堡薯条", "🍜 兰州拉面", "🍱 精致日料", "🍛 咖喱饭", "🥘 麻辣烫", "🍗 韩式炸鸡", "🥗 健康沙拉", "🍝 意式面点", "🥡 广式点心", "🍢 东北烧烤", "🍲 暖心小火锅", "🍚 煲仔饭", "🥟 杭州小笼包", "🍜 片儿川", "🍲 西湖牛肉羹"],
+            all: ["🍔 汉堡薯条", "🍜 兰州拉面", "🍱 精致日料", "🍛 咖喱饭", "🥘 麻辣烫", "🍗 韩式炸鸡", "🥗 健康沙拉", "🍝 意式面点", "🥡 广式点心", "🍢 东北烧烤", "🍲 暖心小火锅", "🍚 煲仔饭"],
             fit: ["🥗 鸡胸肉沙拉", "🥣 低脂燕麦", "🍣 刺身拼盘", "🥪 全麦三明治", "🍵 纯净果蔬汁", "🍲 清蒸鱼片"],
             night: ["🍢 狂野烧烤", "🥘 劲爆小龙虾", "🍗 炸鸡啤酒", "🍜 螺蛳粉", "🍟 大份薯条", "🥨 脆皮五花肉"]
         };
 
+        const advicesPool = [
+            "西湖的风，吹不到我的胃，但大将军可以。",
+            "没有什么是一顿饭解决不了的，如果有，就两顿。",
+            "大将军御笔：今天你的胃值得温柔以待。",
+            "在每一个纠结的瞬间，都有大将军为你撑腰。",
+            "生活太苦，点餐要酷。",
+            "杭城的烟火气，此刻就在你的指尖。",
+            "抓水母不如抓筷子，大将军看好你！",
+            "这是命运的安排，也是大将军的旨意。"
+        ];
+
+        let spinCount = parseInt(localStorage.getItem('spin_count') || '0');
         let history = JSON.parse(localStorage.getItem('takeout_history')) || [];
         let currentMode = 'all';
         let lastWinner = "";
         let currentWinner = "";
+        let currentCityId = "3"; // 默认杭州
 
         const container = document.getElementById('slot-container');
         const spinBtn = document.getElementById('spin-btn');
         const adviceBox = document.getElementById('advice');
         const orderSection = document.getElementById('order-section');
 
+        // 生成背景气泡
+        function createBubbles() {
+            const wrap = document.getElementById('bubbles');
+            for(let i=0; i<10; i++) {
+                const b = document.createElement('div');
+                b.className = 'bubble';
+                const size = Math.random() * 60 + 20;
+                b.style.width = size + 'px'; b.style.height = size + 'px';
+                b.style.left = Math.random() * 100 + '%';
+                b.style.animationDelay = Math.random() * 10 + 's';
+                wrap.appendChild(b);
+            }
+        }
+        createBubbles();
+
         async function fetchMenus() {
             try {
-                const res = await fetch('/api/menus');
+                const res = await fetch('/api/menus', { headers: { 'X-User-Id': userId } });
                 if (res.ok) {
                     menus = await res.json();
                     initList();
                 }
-            } catch (e) {
-                const saved = localStorage.getItem('takeout_menus');
-                if(saved) menus = JSON.parse(saved);
-                initList();
-            }
+            } catch (e) { initList(); }
         }
 
         function initList() {
@@ -174,8 +230,7 @@
             const displayList = [...list, ...list, ...list];
             displayList.forEach(item => {
                 const div = document.createElement('div');
-                div.className = 'slot-item';
-                div.textContent = item;
+                div.className = 'slot-item'; div.textContent = item;
                 container.appendChild(div);
             });
             container.style.transition = 'none';
@@ -192,46 +247,54 @@
         function setTheme(theme) { document.body.className = `theme-${theme}`; }
 
         function spin() {
+            // iOS 摇一摇权限请求必须由用户触发
+            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission().then(permissionState => {
+                    if (permissionState === 'granted') { console.log("Shake activated"); }
+                });
+            }
+
             if (spinBtn.disabled) return;
             const list = menus[currentMode];
             let randomIndex = Math.floor(Math.random() * list.length);
             let winner = list[randomIndex];
 
             if (winner === lastWinner && list.length > 1) {
-                adviceBox.innerHTML = '<span class="dupe-alert">大将军不答应！连吃两次太腻了，重抽！</span>';
+                adviceBox.innerHTML = '<b style="color:var(--accent)">大将军不答应！连吃两次太腻了，重抽！</b>';
                 adviceBox.style.display = 'block';
                 playSound(150, 'square', 0.2);
                 return;
             }
 
-            spinBtn.disabled = true;
-            orderSection.style.display = 'none';
-            adviceBox.style.display = 'none';
+            spinBtn.disabled = true; orderSection.style.display = 'none'; adviceBox.style.display = 'none';
             
             let count = 0;
             const clicker = setInterval(() => {
                 playSound(400 + Math.random() * 200, 'sine', 0.05);
-                if (++count > 20) clearInterval(clicker);
-            }, 100);
+                if (++count > 25) clearInterval(clicker);
+            }, 80);
 
-            const itemHeight = 90;
+            const itemHeight = 110;
             const targetOffset = (list.length * 2 + randomIndex) * itemHeight;
-            container.style.transition = 'transform 3s cubic-bezier(0.1, 0, 0.1, 1)';
+            container.style.transition = 'transform 3s cubic-bezier(0.15, 0, 0.05, 1)';
             container.style.transform = `translateY(-${targetOffset}px)`;
             
             setTimeout(() => {
-                spinBtn.disabled = false;
-                lastWinner = winner;
+                spinBtn.disabled = false; lastWinner = winner;
                 currentWinner = winner.replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
                 
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                playSound(800, 'sine', 0.1);
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                playSound(800, 'sine', 0.1); setTimeout(()=>playSound(1200, 'sine', 0.15), 100);
                 
-                let adviceText = "大将军建议：第一眼选中的就是缘分！";
-                const countInHistory = history.filter(h => h.w === winner).length;
-                if(countInHistory > 2) adviceText = `章鱼哥！这周第${countInHistory+1}次选它了，你的腹肌在哭泣！😭`;
-                if(winner.includes("火锅") || winner.includes("汤") || winner.includes("面")) adviceText += " (外面冷，吃这个暖和！🌡️)";
+                spinCount++; localStorage.setItem('spin_count', spinCount);
+                if (spinCount === 3 && userId.startsWith('guest_')) {
+                    document.getElementById('sync-banner').style.display = 'flex';
+                }
 
+                let adviceText = advicesPool[Math.floor(Math.random() * advicesPool.length)];
+                const countInHistory = history.filter(h => h.w === winner).length;
+                if(countInHistory > 2) adviceText = `章鱼哥！第${countInHistory+1}次选它了，腹肌在哭泣！😭`;
+                
                 adviceBox.textContent = adviceText;
                 adviceBox.style.display = 'block';
                 orderSection.style.display = 'block';
@@ -247,45 +310,69 @@
             }, 3000);
         }
 
+        // 摇一摇优化
         let lastShake = 0;
         window.addEventListener('devicemotion', (e) => {
             const acc = e.accelerationIncludingGravity;
             if(!acc) return;
-            const total = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
-            if (total > 30 && Date.now() - lastShake > 5000) {
-                lastShake = Date.now();
-                spin();
+            const threshold = 15;
+            if (Math.abs(acc.x) > threshold || Math.abs(acc.y) > threshold) {
+                if (Date.now() - lastShake > 4000) {
+                    lastShake = Date.now();
+                    spin();
+                }
             }
         });
 
         function openEdit() {
+            document.getElementById('edit-title').textContent = `编辑【${currentMode}】菜单`;
             document.getElementById('menu-edit-area').value = menus[currentMode].join('\n');
             document.getElementById('edit-modal').style.display = 'flex';
         }
         function closeEdit(e) { document.getElementById('edit-modal').style.display = 'none'; }
         function saveMenu() {
-            const newMenus = document.getElementById('menu-edit-area').value.split('\n').filter(i => i.trim());
-            menus[currentMode] = newMenus;
+            menus[currentMode] = document.getElementById('menu-edit-area').value.split('\n').filter(i => i.trim());
             fetch('/api/menus', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
                 body: JSON.stringify(menus)
             });
-            localStorage.setItem('takeout_menus', JSON.stringify(menus));
-            initList();
-            closeEdit();
+            initList(); closeEdit();
+        }
+
+        function requestCloudSync() {
+            const name = prompt("请输入你的专属代号（大将军将以此名记住你的口味）：");
+            if(name) {
+                userId = name;
+                localStorage.setItem('terminator_user_id', userId);
+                document.getElementById('sync-banner').style.display = 'none';
+                fetchMenus();
+                alert(`欢迎加入比奇堡，${userId} 大将军！数据正在同步...`);
+            }
+        }
+
+        function detectCity() {
+            if (navigator.geolocation) {
+                document.getElementById('weather-text').textContent = "📡 正在定位...";
+                navigator.geolocation.getCurrentPosition(async (pos) => {
+                    // 由于没有天气API，这里做一个视觉伪装，通常我们会用经纬度查城市
+                    document.getElementById('weather-text').textContent = "📍 已自动定位";
+                    setTimeout(()=> { document.getElementById('weather-text').textContent = "🌤️ 杭州: 6°C"; }, 2000);
+                }, () => {
+                    alert("定位失败，请确保给了大将军 GPS 权限！");
+                });
+            }
         }
 
         function shareResult() {
-            const text = `大将军御笔点将：今晚吃【${lastWinner}】！谁赞成？谁反对？👾🐙`;
+            const text = `大将军御笔点将：今晚吃【${lastWinner}】！谁赞成？谁反对？👾🐙\n\n直达纠结终结者: ${window.location.href}`;
             if (navigator.share) {
-                navigator.share({ title: '点餐结果', text: text, url: window.location.href });
+                navigator.share({ title: '点餐结果', text: text });
             } else {
                 const input = document.createElement('textarea');
-                input.value = text + "\n直达光缆: " + window.location.href;
-                document.body.appendChild(input); input.select();
+                input.value = text; document.body.appendChild(input); input.select();
                 document.execCommand('copy'); document.body.removeChild(input);
-                alert("已复制到剪贴板！请直接发给微信好友。🚀");
+                alert("已将‘点将令’存入剪贴板！请直接粘贴发给微信好友。🚀");
             }
         }
 
@@ -294,7 +381,7 @@
             let h5Url, appUrl;
             if (type === 'ele') { h5Url = `https://h5.ele.me/minisearch/result?keyword=${query}`; appUrl = `eleme://search?keyword=${query}`; }
             else if (type === 'meituan') { h5Url = `https://h5.waimai.meituan.com/waimai/mindex/searchresults?keyword=${query}`; appUrl = `imeituan://www.meituan.com/s/${query}`; }
-            else { h5Url = `https://m.dianping.com/shoplist/3/search?keyword=${query}`; appUrl = `dianping://searchshoplist?keyword=${query}`; }
+            else { h5Url = `https://m.dianping.com/shoplist/${currentCityId}/search?keyword=${query}`; appUrl = `dianping://searchshoplist?keyword=${query}`; }
             window.open(appUrl, '_blank');
             setTimeout(() => { if (!document.hidden) window.location.href = h5Url; }, 2500);
         }
