@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>纠结终结者 (Takeout Terminator) 🤖🍱</title>
     <style>
         :root {
@@ -13,99 +13,126 @@
 
         body {
             margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; overflow-x: hidden; transition: background 0.5s ease;
-            position: relative;
+            background: var(--bg); color: var(--text); 
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+            height: 100vh; width: 100vw; overflow: hidden; /* 禁止滑动，像原生App */
+            transition: background 0.5s ease;
+            position: relative; -webkit-user-select: none;
         }
 
-        /* 动态背景气泡 */
-        .bubble { position: absolute; background: rgba(255,255,255,0.05); border-radius: 50%; bottom: -100px; animation: rise 15s infinite ease-in; z-index: -1; }
+        /* 气泡背景 */
+        #bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .bubble { position: absolute; background: rgba(255,255,255,0.03); border-radius: 50%; bottom: -100px; animation: rise 15s infinite ease-in; }
         @keyframes rise { from { bottom: -100px; transform: translateX(0); } to { bottom: 110%; transform: translateX(50px); } }
 
-        .container {
-            text-align: center; padding: 1.5rem; background: var(--card-bg); backdrop-filter: blur(20px);
-            border-radius: 2.5rem; border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8); max-width: 400px; width: 85%; position: relative;
+        .app-header {
+            width: 100%; padding: 1.5rem 1.5rem 0.5rem; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .user-badge {
+            background: var(--card-bg); padding: 0.4rem 0.8rem; border-radius: 2rem;
+            font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8; display: flex; align-items: center; gap: 0.4rem;
         }
 
-        .top-bar { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.7rem; color: #94a3b8; }
-        .weather-info { color: #818cf8; font-weight: bold; cursor: pointer; }
+        .container {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 90%; max-width: 400px; gap: 1rem;
+        }
 
         h1 {
-            font-size: 1.6rem; margin-bottom: 0.5rem;
+            font-size: 1.8rem; margin: 0;
             background: linear-gradient(to right, #818cf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 900; letter-spacing: -1px;
+            font-weight: 900; letter-spacing: -1px; text-align: center;
         }
 
-        .mode-selector { display: flex; gap: 0.3rem; justify-content: center; margin-bottom: 1.2rem; }
-        .mode-btn { padding: 0.4rem 0.7rem; font-size: 0.75rem; border-radius: 0.7rem; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; transition: 0.3s; }
-        .mode-btn.active { background: var(--primary); color: white; box-shadow: 0 0 15px var(--primary); }
+        .mode-selector { display: flex; gap: 0.4rem; justify-content: center; width: 100%; }
+        .mode-btn { flex: 1; padding: 0.5rem; font-size: 0.75rem; border-radius: 0.8rem; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; transition: 0.3s; }
+        .mode-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px var(--primary); }
 
+        .slot-wrapper {
+            width: 100%; perspective: 1000px; margin: 0.5rem 0;
+        }
         .slot-machine {
-            height: 110px; overflow: hidden; background: rgba(0, 0, 0, 0.4); border-radius: 1.5rem;
-            border: 3px solid var(--primary); position: relative; margin-bottom: 1.5rem;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            height: 120px; overflow: hidden; background: rgba(0, 0, 0, 0.5); border-radius: 1.5rem;
+            border: 4px solid var(--primary); position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.8);
         }
-        .slot-container { position: absolute; width: 100%; transition: transform 3s cubic-bezier(0.15, 0, 0.05, 1); }
-        .slot-item { height: 110px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .slot-container { position: absolute; width: 100%; transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1); }
+        .slot-item { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; }
 
         #spin-btn {
-            padding: 1.1rem; font-size: 1.3rem; font-weight: 800; background: var(--primary); color: white;
-            border: none; border-radius: 1.2rem; cursor: pointer; width: 100%; box-shadow: 0 10px 20px -5px var(--primary);
-            transition: 0.2s active;
+            padding: 1.2rem; font-size: 1.4rem; font-weight: 900; background: var(--primary); color: white;
+            border: none; border-radius: 1.5rem; cursor: pointer; width: 100%; box-shadow: 0 15px 25px -5px var(--primary);
+            transition: transform 0.1s;
         }
-        #spin-btn:active { transform: scale(0.98); opacity: 0.9; }
+        #spin-btn:active { transform: scale(0.96); }
+
+        .shake-hint { font-size: 0.65rem; color: #475569; margin-top: 0.5rem; }
 
         .advice-box { 
-            margin-top: 1.2rem; padding: 1.2rem; background: rgba(0, 0, 0, 0.3); border-radius: 1.2rem; 
-            font-style: normal; font-size: 0.9rem; color: #e2e8f0; display: none; border: 1px dashed var(--primary);
-            line-height: 1.5;
+            width: 100%; padding: 1rem; box-sizing: border-box; background: rgba(0, 0, 0, 0.2); 
+            border-radius: 1.2rem; font-size: 0.9rem; color: #e2e8f0; display: none; 
+            border-left: 4px solid var(--primary); line-height: 1.4; text-align: left;
         }
         
-        .platform-section { display: none; margin-top: 1.5rem; }
-        .platform-grid { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; }
-        .platform-btn { padding: 0.8rem 0.4rem; font-size: 0.85rem; border-radius: 0.8rem; border: none; color: white; cursor: pointer; flex: 1; font-weight: bold; }
+        .action-area { width: 100%; display: none; flex-direction: column; gap: 0.8rem; margin-top: 0.5rem; }
+        .platform-grid { display: flex; gap: 0.5rem; width: 100%; }
+        .platform-btn { height: 45px; font-size: 0.8rem; border-radius: 0.8rem; border: none; color: white; cursor: pointer; flex: 1; font-weight: bold; }
 
-        .action-bar { display: flex; gap: 0.5rem; }
-        .icon-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.7rem; border-radius: 0.8rem; font-size: 0.8rem; cursor: pointer; flex: 1; border: 1px solid rgba(255,255,255,0.05); }
+        .tool-grid { display: flex; gap: 0.5rem; }
+        .icon-btn { background: rgba(255,255,255,0.08); border: none; color: white; height: 40px; border-radius: 0.8rem; font-size: 0.75rem; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.3rem; }
 
-        /* Cloud Sync Banner */
-        #sync-banner {
-            position: fixed; bottom: 20px; width: 90%; max-width: 360px; background: var(--primary);
-            color: white; padding: 1rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            display: none; justify-content: space-between; align-items: center; z-index: 200;
-        }
+        .app-footer { width: 100%; padding: 1rem; font-size: 0.6rem; color: #475569; text-align: center; }
 
-        #edit-modal {
+        /* Modals - fixed position to prevent scrolling */
+        .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
-            display: none; align-items: center; justify-content: center; z-index: 300;
+            display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1.5rem; box-sizing: border-box;
         }
-        .modal-content { background: #1e293b; padding: 1.5rem; border-radius: 2rem; width: 85%; max-width: 350px; border: 1px solid var(--primary); }
-        textarea { width: 100%; height: 200px; background: #0f172a; color: white; border: 1px solid var(--primary); border-radius: 1rem; padding: 1rem; margin: 1rem 0; font-size: 1rem; box-sizing: border-box; }
-
-        .theme-switcher { position: absolute; top: -45px; right: 0; display: flex; gap: 0.8rem; }
-        .theme-dot { width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .modal-content { background: #1e293b; padding: 1.5rem; border-radius: 2rem; width: 100%; max-width: 360px; border: 1px solid var(--primary); display: flex; flex-direction: column; gap: 1rem; }
+        textarea { width: 100%; height: 200px; background: #0f172a; color: white; border: 1px solid var(--primary); border-radius: 1rem; padding: 1rem; font-size: 1rem; box-sizing: border-box; resize: none; }
         
-        .shake-hint { font-size: 0.7rem; color: #64748b; margin-top: 0.8rem; letter-spacing: 1px; }
+        #poster-canvas { display: none; }
+        #poster-img { width: 100%; border-radius: 1rem; margin-bottom: 1rem; }
+
+        /* Theme Switcher */
+        .theme-dots { display: flex; gap: 0.6rem; }
+        .theme-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
+
+        /* Sync Banner integrated into UI */
+        #sync-prompt {
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            margin-top: 1rem; padding: 0.8rem; border-radius: 1rem; font-size: 0.75rem;
+            display: none; align-items: center; justify-content: space-between; gap: 0.5rem;
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .new-feature { animation: pulse 2s infinite; font-weight: bold; color: gold; }
     </style>
 </head>
 <body class="theme-pi">
-    <!-- 背景气泡 -->
     <div id="bubbles"></div>
 
-    <div class="container">
-        <div class="theme-switcher">
+    <!-- Header: User info & Themes -->
+    <header class="app-header">
+        <div class="user-badge">
+            <span id="user-icon">👤</span>
+            <span id="user-display">访客模式</span>
+        </div>
+        <div class="theme-dots">
             <div class="theme-dot" style="background: #6366f1;" onclick="setTheme('pi')"></div>
             <div class="theme-dot" style="background: #f59e0b;" onclick="setTheme('krabs')"></div>
             <div class="theme-dot" style="background: #fbbf24;" onclick="setTheme('sponge')"></div>
         </div>
+    </header>
 
-        <div class="top-bar">
-            <span id="weather-text" class="weather-info" onclick="detectCity()">🔍 探测位置...</span>
-            <span id="meal-time">比奇堡时间</span>
-        </div>
-
-        <h1>纠结终结者 🚀</h1>
+    <!-- Main Container -->
+    <main class="container">
+        <div id="weather-text" style="font-size: 0.7rem; color: var(--primary); font-weight: bold;">🌤️ 杭州: 6°C · 寒冷 · 宜火锅</div>
+        
+        <h1>纠结终结者</h1>
 
         <div class="mode-selector">
             <button class="mode-btn active" id="mode-all" onclick="setMode('all')">全都要</button>
@@ -113,63 +140,65 @@
             <button class="mode-btn" id="mode-night" onclick="setMode('night')">要快乐</button>
         </div>
         
-        <div class="slot-machine">
-            <div id="slot-container" class="slot-container"></div>
+        <div class="slot-wrapper">
+            <div class="slot-machine">
+                <div id="slot-container" class="slot-container"></div>
+            </div>
         </div>
 
-        <button id="spin-btn" onclick="spin()">开始点将 / 摇一摇</button>
-        <div class="shake-hint">用力甩动手机也可以触发！</div>
+        <button id="spin-btn" onclick="spin()">开始点将</button>
+        <div class="shake-hint">用力甩甩手机也能触发 📱</div>
+
+        <div id="sync-prompt">
+            <span>保存你的私人专属菜单？</span>
+            <button onclick="requestCloudSync()" style="background: white; color: black; border: none; padding: 0.4rem 0.8rem; border-radius: 0.5rem; font-weight: 800; font-size: 0.65rem;">一键创建</button>
+        </div>
         
         <div id="advice" class="advice-box"></div>
 
-        <div id="order-section" class="platform-section">
+        <div id="order-section" class="action-area">
             <div class="platform-grid">
                 <button class="platform-btn" onclick="openApp('ele')" style="background: linear-gradient(to right, #008cff, #ff5000);">饿了么/淘宝</button>
                 <button class="platform-btn" onclick="openApp('meituan')" style="background: #ffc300; color: #000;">美团外卖</button>
                 <button class="platform-btn" onclick="openApp('dianping')" style="background: #ff6633;">大众点评</button>
             </div>
-            <div class="action-bar">
+            <div class="tool-grid">
                 <button class="icon-btn" onclick="openEdit()">✍️ 修改菜单</button>
-                <button class="icon-btn" onclick="shareResult()">📤 分享战果</button>
+                <button class="icon-btn" onclick="shareResult()">📤 文字分享</button>
+                <button class="icon-btn" onclick="generatePoster()" style="background: var(--accent);"><span class="new-feature">📸 生成海报</span></button>
             </div>
         </div>
-        
-        <div class="footer">由派大星大将军荣誉出品 🫡</div>
-    </div>
+    </main>
 
-    <!-- 保存云端弹窗 -->
-    <div id="sync-banner">
-        <span style="font-size: 0.8rem; font-weight: bold;">大将军发现你很有眼光！<br/>要创建专属私人菜单吗？</span>
-        <button onclick="requestCloudSync()" style="background: white; color: var(--primary); border: none; padding: 0.5rem 0.8rem; border-radius: 0.5rem; font-weight: bold; font-size: 0.7rem;">点我创建</button>
-    </div>
+    <footer class="app-footer">
+        由派大星大将军荣誉出品 🫡
+    </footer>
 
-    <div id="edit-modal" onclick="closeEdit(event)">
+    <!-- Modals -->
+    <div id="edit-modal" class="modal" onclick="closeEdit(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="edit-title">编辑菜单</h3>
-            <textarea id="menu-edit-area"></textarea>
-            <button id="spin-btn" style="padding: 0.8rem;" onclick="saveMenu()">同步到云端</button>
+            <h3 id="edit-title" style="margin:0">修改菜单</h3>
+            <textarea id="menu-edit-area" placeholder="每行一个菜名..."></textarea>
+            <button id="spin-btn" style="padding: 1rem;" onclick="saveMenu()">同步到云端</button>
         </div>
     </div>
+
+    <div id="poster-modal" class="modal" onclick="document.getElementById('poster-modal').style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()" style="background: white; color: black;">
+            <p style="color: #64748b; font-size: 0.7rem; margin-bottom: 0.5rem; text-align: center;">长按图片保存或分享给好友</p>
+            <img id="poster-img" src="" alt="点将令">
+            <button id="spin-btn" style="padding: 0.8rem; font-size: 1rem;" onclick="document.getElementById('poster-modal').style.display='none'">关闭</button>
+        </div>
+    </div>
+
+    <canvas id="poster-canvas" width="600" height="1000"></canvas>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(freq, type, duration) {
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type; osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-                osc.start(); osc.stop(audioCtx.currentTime + duration);
-            } catch(e) {}
-        }
-
-        // 初始化用户ID
-        let userId = localStorage.getItem('terminator_user_id') || 'guest_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('terminator_user_id', userId);
-
+        // --- 核心逻辑 ---
+        let userId = localStorage.getItem('terminator_user_id') || 'guest_' + Math.random().toString(36).substr(2, 6);
+        let userName = localStorage.getItem('terminator_user_name') || '';
+        
         let menus = {
             all: ["🍔 汉堡薯条", "🍜 兰州拉面", "🍱 精致日料", "🍛 咖喱饭", "🥘 麻辣烫", "🍗 韩式炸鸡", "🥗 健康沙拉", "🍝 意式面点", "🥡 广式点心", "🍢 东北烧烤", "🍲 暖心小火锅", "🍚 煲仔饭"],
             fit: ["🥗 鸡胸肉沙拉", "🥣 低脂燕麦", "🍣 刺身拼盘", "🥪 全麦三明治", "🍵 纯净果蔬汁", "🍲 清蒸鱼片"],
@@ -180,47 +209,39 @@
             "西湖的风，吹不到我的胃，但大将军可以。",
             "没有什么是一顿饭解决不了的，如果有，就两顿。",
             "大将军御笔：今天你的胃值得温柔以待。",
-            "在每一个纠结的瞬间，都有大将军为你撑腰。",
-            "生活太苦，点餐要酷。",
-            "杭城的烟火气，此刻就在你的指尖。",
-            "抓水母不如抓筷子，大将军看好你！",
+            "生活太苦，点餐要酷。大将军懂你！",
+            "抓水母不如抓筷子，这就出发！",
             "这是命运的安排，也是大将军的旨意。"
         ];
 
         let spinCount = parseInt(localStorage.getItem('spin_count') || '0');
-        let history = JSON.parse(localStorage.getItem('takeout_history')) || [];
         let currentMode = 'all';
         let lastWinner = "";
         let currentWinner = "";
-        let currentCityId = "3"; // 默认杭州
+        let currentFullWinner = "";
 
         const container = document.getElementById('slot-container');
         const spinBtn = document.getElementById('spin-btn');
         const adviceBox = document.getElementById('advice');
         const orderSection = document.getElementById('order-section');
+        const userDisplay = document.getElementById('user-display');
+        const syncPrompt = document.getElementById('sync-prompt');
 
-        // 生成背景气泡
-        function createBubbles() {
-            const wrap = document.getElementById('bubbles');
-            for(let i=0; i<10; i++) {
-                const b = document.createElement('div');
-                b.className = 'bubble';
-                const size = Math.random() * 60 + 20;
-                b.style.width = size + 'px'; b.style.height = size + 'px';
-                b.style.left = Math.random() * 100 + '%';
-                b.style.animationDelay = Math.random() * 10 + 's';
-                wrap.appendChild(b);
+        function updateUI() {
+            if (userName) {
+                userDisplay.textContent = `大将军: ${userName}`;
+                syncPrompt.style.display = 'none';
+            } else {
+                userDisplay.textContent = '访客模式';
+                if (spinCount >= 3) syncPrompt.style.display = 'flex';
             }
         }
-        createBubbles();
 
         async function fetchMenus() {
             try {
                 const res = await fetch('/api/menus', { headers: { 'X-User-Id': userId } });
-                if (res.ok) {
-                    menus = await res.json();
-                    initList();
-                }
+                if (res.ok) { menus = await res.json(); }
+                initList();
             } catch (e) { initList(); }
         }
 
@@ -247,13 +268,6 @@
         function setTheme(theme) { document.body.className = `theme-${theme}`; }
 
         function spin() {
-            // iOS 摇一摇权限请求必须由用户触发
-            if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-                DeviceMotionEvent.requestPermission().then(permissionState => {
-                    if (permissionState === 'granted') { console.log("Shake activated"); }
-                });
-            }
-
             if (spinBtn.disabled) return;
             const list = menus[currentMode];
             let randomIndex = Math.floor(Math.random() * list.length);
@@ -262,46 +276,28 @@
             if (winner === lastWinner && list.length > 1) {
                 adviceBox.innerHTML = '<b style="color:var(--accent)">大将军不答应！连吃两次太腻了，重抽！</b>';
                 adviceBox.style.display = 'block';
-                playSound(150, 'square', 0.2);
                 return;
             }
 
             spinBtn.disabled = true; orderSection.style.display = 'none'; adviceBox.style.display = 'none';
             
-            let count = 0;
-            const clicker = setInterval(() => {
-                playSound(400 + Math.random() * 200, 'sine', 0.05);
-                if (++count > 25) clearInterval(clicker);
-            }, 80);
-
-            const itemHeight = 110;
+            const itemHeight = 120;
             const targetOffset = (list.length * 2 + randomIndex) * itemHeight;
-            container.style.transition = 'transform 3s cubic-bezier(0.15, 0, 0.05, 1)';
+            container.style.transition = 'transform 3s cubic-bezier(0.1, 0, 0.1, 1)';
             container.style.transform = `translateY(-${targetOffset}px)`;
             
             setTimeout(() => {
-                spinBtn.disabled = false; lastWinner = winner;
+                spinBtn.disabled = false; lastWinner = winner; currentFullWinner = winner;
                 currentWinner = winner.replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
                 
                 confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-                playSound(800, 'sine', 0.1); setTimeout(()=>playSound(1200, 'sine', 0.15), 100);
                 
                 spinCount++; localStorage.setItem('spin_count', spinCount);
-                if (spinCount === 3 && userId.startsWith('guest_')) {
-                    document.getElementById('sync-banner').style.display = 'flex';
-                }
+                updateUI();
 
-                let adviceText = advicesPool[Math.floor(Math.random() * advicesPool.length)];
-                const countInHistory = history.filter(h => h.w === winner).length;
-                if(countInHistory > 2) adviceText = `章鱼哥！第${countInHistory+1}次选它了，腹肌在哭泣！😭`;
-                
-                adviceBox.textContent = adviceText;
+                adviceBox.textContent = advicesPool[Math.floor(Math.random() * advicesPool.length)];
                 adviceBox.style.display = 'block';
-                orderSection.style.display = 'block';
-
-                history.push({t: Date.now(), w: winner});
-                if(history.length > 20) history.shift();
-                localStorage.setItem('takeout_history', JSON.stringify(history));
+                orderSection.style.display = 'flex';
 
                 setTimeout(() => {
                     container.style.transition = 'none';
@@ -310,22 +306,20 @@
             }, 3000);
         }
 
-        // 摇一摇优化
+        // --- 摇一摇 ---
         let lastShake = 0;
         window.addEventListener('devicemotion', (e) => {
             const acc = e.accelerationIncludingGravity;
             if(!acc) return;
-            const threshold = 15;
-            if (Math.abs(acc.x) > threshold || Math.abs(acc.y) > threshold) {
-                if (Date.now() - lastShake > 4000) {
-                    lastShake = Date.now();
-                    spin();
-                }
+            const total = Math.abs(acc.x) + Math.abs(acc.y);
+            if (total > 25 && Date.now() - lastShake > 5000) {
+                lastShake = Date.now(); spin();
             }
         });
 
+        // --- 菜单编辑 ---
         function openEdit() {
-            document.getElementById('edit-title').textContent = `编辑【${currentMode}】菜单`;
+            document.getElementById('edit-title').textContent = `编辑菜单 [${currentMode}]`;
             document.getElementById('menu-edit-area').value = menus[currentMode].join('\n');
             document.getElementById('edit-modal').style.display = 'flex';
         }
@@ -333,47 +327,95 @@
         function saveMenu() {
             menus[currentMode] = document.getElementById('menu-edit-area').value.split('\n').filter(i => i.trim());
             fetch('/api/menus', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
                 body: JSON.stringify(menus)
             });
             initList(); closeEdit();
         }
 
         function requestCloudSync() {
-            const name = prompt("请输入你的专属代号（大将军将以此名记住你的口味）：");
+            const name = prompt("输入你的大将军代号（建立云端档案）：");
             if(name) {
-                userId = name;
+                userName = name; userId = name;
                 localStorage.setItem('terminator_user_id', userId);
-                document.getElementById('sync-banner').style.display = 'none';
-                fetchMenus();
-                alert(`欢迎加入比奇堡，${userId} 大将军！数据正在同步...`);
+                localStorage.setItem('terminator_user_name', userName);
+                fetchMenus(); updateUI();
+                alert(`档案建立成功，大将军 ${userName}！`);
             }
         }
 
-        function detectCity() {
-            if (navigator.geolocation) {
-                document.getElementById('weather-text').textContent = "📡 正在定位...";
-                navigator.geolocation.getCurrentPosition(async (pos) => {
-                    // 由于没有天气API，这里做一个视觉伪装，通常我们会用经纬度查城市
-                    document.getElementById('weather-text').textContent = "📍 已自动定位";
-                    setTimeout(()=> { document.getElementById('weather-text').textContent = "🌤️ 杭州: 6°C"; }, 2000);
-                }, () => {
-                    alert("定位失败，请确保给了大将军 GPS 权限！");
-                });
-            }
-        }
-
+        // --- 分享逻辑 ---
         function shareResult() {
-            const text = `大将军御笔点将：今晚吃【${lastWinner}】！谁赞成？谁反对？👾🐙\n\n直达纠结终结者: ${window.location.href}`;
+            const text = `大将军御笔点将：今晚吃【${lastWinner}】！谁赞成？谁反对？👾\n\n传送阵: ${window.location.href}`;
             if (navigator.share) {
                 navigator.share({ title: '点餐结果', text: text });
             } else {
-                const input = document.createElement('textarea');
-                input.value = text; document.body.appendChild(input); input.select();
-                document.execCommand('copy'); document.body.removeChild(input);
-                alert("已将‘点将令’存入剪贴板！请直接粘贴发给微信好友。🚀");
+                alert("已复制到剪贴板，快去发给微信好友吧！🚀");
+                const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
             }
+        }
+
+        // --- 海报生成 (书签风格) ---
+        function generatePoster() {
+            const canvas = document.getElementById('poster-canvas');
+            const ctx = canvas.getContext('2d');
+            const themeColor = getComputedStyle(document.body).getPropertyValue('--primary').trim();
+            const advice = adviceBox.textContent;
+
+            // 绘制背景
+            ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,600,1000);
+            ctx.fillStyle = themeColor; ctx.fillRect(0,0,600,200);
+            
+            // 装饰圆
+            ctx.globalAlpha = 0.2;
+            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(550, 50, 150, 0, Math.PI*2); ctx.fill();
+            ctx.globalAlpha = 1.0;
+
+            // 标题
+            ctx.fillStyle = '#ffffff'; ctx.font = 'bold 60px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText('纠结终结者', 300, 100);
+            ctx.font = '30px sans-serif';
+            ctx.fillText('TAKEOUT TERMINATOR', 300, 150);
+
+            // 结果
+            ctx.fillStyle = '#1e293b'; ctx.font = '80px sans-serif';
+            ctx.fillText(currentFullWinner, 300, 450);
+            
+            // 文案
+            ctx.fillStyle = '#64748b'; ctx.font = 'italic 32px sans-serif';
+            wrapText(ctx, `“ ${advice} ”`, 300, 600, 500, 45);
+
+            // 二维码区域
+            const qrSize = 180;
+            const qrX = 300 - qrSize/2;
+            const qrY = 750;
+            
+            // 调用 QR 接口
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`;
+            const qrImg = new Image();
+            qrImg.crossOrigin = "anonymous";
+            qrImg.src = qrUrl;
+            qrImg.onload = () => {
+                ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+                ctx.fillStyle = '#94a3b8'; ctx.font = '24px sans-serif';
+                ctx.fillText('长按扫码，大将军帮你选', 300, 970);
+                
+                // 显示弹窗
+                document.getElementById('poster-img').src = canvas.toDataURL('image/png');
+                document.getElementById('poster-modal').style.display = 'flex';
+            };
+        }
+
+        function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            let words = text.split(''); let line = '';
+            for(let n = 0; n < words.length; n++) {
+                let testLine = line + words[n];
+                let metrics = context.measureText(testLine);
+                if (metrics.width > maxWidth && n > 0) {
+                    context.fillText(line, x, y); line = words[n]; y += lineHeight;
+                } else { line = testLine; }
+            }
+            context.fillText(line, x, y);
         }
 
         function openApp(type) {
@@ -381,14 +423,23 @@
             let h5Url, appUrl;
             if (type === 'ele') { h5Url = `https://h5.ele.me/minisearch/result?keyword=${query}`; appUrl = `eleme://search?keyword=${query}`; }
             else if (type === 'meituan') { h5Url = `https://h5.waimai.meituan.com/waimai/mindex/searchresults?keyword=${query}`; appUrl = `imeituan://www.meituan.com/s/${query}`; }
-            else { h5Url = `https://m.dianping.com/shoplist/${currentCityId}/search?keyword=${query}`; appUrl = `dianping://searchshoplist?keyword=${query}`; }
+            else { h5Url = `https://m.dianping.com/shoplist/3/search?keyword=${query}`; appUrl = `dianping://searchshoplist?keyword=${query}`; }
             window.open(appUrl, '_blank');
             setTimeout(() => { if (!document.hidden) window.location.href = h5Url; }, 2500);
         }
 
-        const hour = new Date().getHours();
-        document.getElementById('meal-time').textContent = hour < 10 ? "早餐时间" : hour < 14 ? "午餐时间" : hour < 17 ? "下午茶时间" : hour < 21 ? "晚餐时间" : "夜宵时间";
-        fetchMenus();
+        // 背景气泡初始化
+        function createBubbles() {
+            const wrap = document.getElementById('bubbles'); wrap.innerHTML = '';
+            for(let i=0; i<8; i++) {
+                const b = document.createElement('div'); b.className = 'bubble';
+                const size = Math.random() * 60 + 20; b.style.width = size + 'px'; b.style.height = size + 'px';
+                b.style.left = Math.random() * 100 + '%'; b.style.animationDelay = Math.random() * 10 + 's';
+                wrap.appendChild(b);
+            }
+        }
+        createBubbles();
+        updateUI(); fetchMenus();
     </script>
 </body>
 </html>
