@@ -15,12 +15,11 @@
             margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background: var(--bg); color: var(--text); 
             display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-            height: 100dvh; width: 100vw; overflow: hidden; /* 使用 100dvh 适配移动端动态高度 */
+            height: 100dvh; width: 100vw; overflow: hidden;
             transition: background 0.5s ease;
             position: relative; -webkit-user-select: none;
         }
 
-        /* 气泡背景 */
         #bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
         .bubble { position: absolute; background: rgba(255,255,255,0.03); border-radius: 50%; bottom: -100px; animation: rise 15s infinite ease-in; }
         @keyframes rise { from { bottom: -100px; transform: translateX(0); } to { bottom: 110%; transform: translateX(50px); } }
@@ -34,13 +33,12 @@
             background: var(--card-bg); padding: 0.4rem 0.8rem; border-radius: 2rem;
             font-size: 0.7rem; border: 1px solid rgba(255,255,255,0.1);
             color: #94a3b8; display: flex; align-items: center; gap: 0.4rem;
-            cursor: pointer; /* 增加手型，暗示可点 */
+            cursor: pointer;
         }
 
         .container {
             flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            width: 90%; max-width: 400px; gap: 0.8rem;
-            padding-bottom: 1rem; /* 增加底部留白 */
+            width: 90%; max-width: 400px; gap: 1rem;
         }
 
         h1 {
@@ -53,16 +51,14 @@
         .mode-btn { flex: 1; padding: 0.5rem; font-size: 0.75rem; border-radius: 0.8rem; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; transition: 0.3s; }
         .mode-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 12px var(--primary); }
 
-        .slot-wrapper {
-            width: 100%; perspective: 1000px; margin: 0.5rem 0;
-        }
+        .slot-wrapper { width: 100%; perspective: 1000px; margin: 0.5rem 0; }
         .slot-machine {
             height: 120px; overflow: hidden; background: rgba(0, 0, 0, 0.5); border-radius: 1.5rem;
             border: 4px solid var(--primary); position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.8);
         }
         .slot-container { position: absolute; width: 100%; transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1); }
-        .slot-item { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; }
+        .slot-item { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; }
 
         #spin-btn {
             padding: 1.2rem; font-size: 1.4rem; font-weight: 900; background: var(--primary); color: white;
@@ -70,8 +66,6 @@
             transition: transform 0.1s;
         }
         #spin-btn:active { transform: scale(0.96); }
-
-        .shake-hint { font-size: 0.65rem; color: #475569; margin-top: 0.5rem; }
 
         .advice-box { 
             width: 100%; padding: 1rem; box-sizing: border-box; background: rgba(0, 0, 0, 0.2); 
@@ -88,7 +82,6 @@
 
         .app-footer { width: 100%; padding: 1.5rem 1rem 2rem; font-size: 0.6rem; color: #475569; text-align: center; }
 
-        /* Modals - fixed position to prevent scrolling */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9);
             display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1.5rem; box-sizing: border-box;
@@ -97,27 +90,15 @@
         textarea { width: 100%; height: 200px; background: #0f172a; color: white; border: 1px solid var(--primary); border-radius: 1rem; padding: 1rem; font-size: 1rem; box-sizing: border-box; resize: none; }
         
         #poster-canvas { display: none; }
-        #poster-img { width: 100%; border-radius: 1rem; margin-bottom: 1rem; }
+        #poster-img { width: 100%; border-radius: 1rem; margin-bottom: 1rem; border: 4px solid white; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
-        /* Theme Switcher */
         .theme-dots { display: flex; gap: 0.6rem; }
         .theme-dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
-
-        /* Sync Banner integrated into UI */
-        #sync-prompt {
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            margin-top: 1rem; padding: 0.8rem; border-radius: 1rem; font-size: 0.75rem;
-            display: none; align-items: center; justify-content: space-between; gap: 0.5rem;
-        }
-
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .new-feature { animation: pulse 2s infinite; font-weight: bold; color: gold; }
     </style>
 </head>
 <body class="theme-pi">
     <div id="bubbles"></div>
 
-    <!-- Header: User info & Themes -->
     <header class="app-header">
         <div class="user-badge" onclick="requestCloudSync()">
             <span id="user-icon">👤</span>
@@ -130,29 +111,22 @@
         </div>
     </header>
 
-    <!-- Main Container -->
     <main class="container">
         <div id="weather-text" style="font-size: 0.7rem; color: var(--primary); font-weight: bold;">🌤️ 杭州: 6°C · 寒冷 · 宜火锅</div>
-        
         <h1>纠结终结者</h1>
-
         <div class="mode-selector">
             <button class="mode-btn active" id="mode-all" onclick="setMode('all')">全都要</button>
             <button class="mode-btn" id="mode-fit" onclick="setMode('fit')">要身材</button>
             <button class="mode-btn" id="mode-night" onclick="setMode('night')">要快乐</button>
         </div>
-        
         <div class="slot-wrapper">
             <div class="slot-machine">
                 <div id="slot-container" class="slot-container"></div>
             </div>
         </div>
-
         <button id="spin-btn" onclick="spin()">开始点将</button>
         <div class="shake-hint">用力甩甩手机也能触发 📱</div>
-
         <div id="advice" class="advice-box"></div>
-
         <div id="order-section" class="action-area">
             <div class="platform-grid">
                 <button class="platform-btn" onclick="openApp('ele')" style="background: linear-gradient(to right, #008cff, #ff5000);">饿了么/淘宝</button>
@@ -162,16 +136,13 @@
             <div class="tool-grid">
                 <button class="icon-btn" onclick="openEdit()">✍️ 修改菜单</button>
                 <button class="icon-btn" onclick="shareResult()">🔗 链接分享</button>
-                <button class="icon-btn" onclick="generatePoster()" style="background: var(--accent);"><span class="new-feature">📸 生成海报</span></button>
+                <button class="icon-btn" onclick="generatePoster()" style="background: var(--accent);">📸 生成海报</button>
             </div>
         </div>
     </main>
 
-    <footer class="app-footer">
-        由派大星大将军荣誉出品 🫡
-    </footer>
+    <footer class="app-footer">由派大星大将军荣誉出品 🫡</footer>
 
-    <!-- Modals -->
     <div id="edit-modal" class="modal" onclick="closeEdit(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="edit-title" style="margin:0">修改菜单</h3>
@@ -182,7 +153,7 @@
 
     <div id="poster-modal" class="modal" onclick="document.getElementById('poster-modal').style.display='none'">
         <div class="modal-content" onclick="event.stopPropagation()" style="background: white; color: black;">
-            <p style="color: #64748b; font-size: 0.7rem; margin-bottom: 0.5rem; text-align: center;">长按图片保存或分享给好友</p>
+            <p style="color: #64748b; font-size: 0.8rem; margin: 0 0 1rem; text-align: center; font-weight: bold;">长按图片保存分享给好友</p>
             <img id="poster-img" src="" alt="点将令">
             <button id="spin-btn" style="padding: 0.8rem; font-size: 1rem;" onclick="document.getElementById('poster-modal').style.display='none'">关闭</button>
         </div>
@@ -192,7 +163,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
-        // --- 核心逻辑 ---
         let userId = localStorage.getItem('terminator_user_id') || 'guest_' + Math.random().toString(36).substr(2, 6);
         let userName = localStorage.getItem('terminator_user_name') || '';
         let userCode = localStorage.getItem('terminator_user_code') || '';
@@ -203,15 +173,7 @@
             night: ["🍢 狂野烧烤", "🥘 劲爆小龙虾", "🍗 炸鸡啤酒", "🍜 螺蛳粉", "🍟 大份薯条", "🥨 脆皮五花肉"]
         };
 
-        const advicesPool = [
-            "西湖的风，吹不到我的胃，但大将军可以。",
-            "没有什么是一顿饭解决不了的，如果有，就两顿。",
-            "大将军御笔：今天你的胃值得温柔以待。",
-            "生活太苦，点餐要酷。大将军懂你！",
-            "抓水母不如抓筷子，这就出发！",
-            "这是命运的安排，也是大将军的旨意。"
-        ];
-
+        const advicesPool = ["西湖的风，吹不到我的胃，但大将军可以。", "没有什么是一顿饭解决不了的，如果有，就两顿。", "大将军御笔：今天你的胃值得温柔以待。", "生活太苦，点餐要酷。大将军懂你！", "抓水母不如抓筷子，这就出发！", "这是命运的安排，也是大将军的旨意。"];
         let spinCount = parseInt(localStorage.getItem('spin_count') || '0');
         let currentMode = 'all';
         let lastWinner = "";
@@ -223,39 +185,28 @@
         const adviceBox = document.getElementById('advice');
         const orderSection = document.getElementById('order-section');
         const userDisplay = document.getElementById('user-display');
-        const syncPrompt = document.getElementById('sync-prompt');
 
         function updateUI() {
             if (userName) {
                 userDisplay.textContent = `大将军: ${userName}`;
-                syncPrompt.style.display = 'none';
             } else {
-                userDisplay.textContent = '访客模式';
-                if (spinCount >= 3) syncPrompt.style.display = 'flex';
+                userDisplay.textContent = '访客模式 · 点击建档';
             }
         }
 
         async function fetchMenus() {
             try {
-                const res = await fetch('/api/menus', { 
-                    headers: { 
-                        'X-User-Id': userId,
-                        'X-User-Code': userCode
-                    } 
-                });
-                if (res.ok) { 
-                    menus = await res.json(); 
-                    initList();
-                } else if (res.status === 403) {
-                    alert("⚠️ 身份校验失败！ID码不正确，已切回访客模式。");
-                    logout();
-                }
+                const res = await fetch('/api/menus', { headers: { 'X-User-Id': userId, 'X-User-Code': userCode } });
+                if (res.ok) { menus = await res.json(); }
+                else if (res.status === 403) { alert("⚠️ 身份校验失败！ID码不正确，已切回访客模式。"); logout(); }
+                initList();
             } catch (e) { initList(); }
         }
 
         function initList() {
             container.innerHTML = '';
-            const list = menus[currentMode];
+            const list = menus[currentMode] || [];
+            if (list.length === 0) return;
             const displayList = [...list, ...list, ...list];
             displayList.forEach(item => {
                 const div = document.createElement('div');
@@ -283,12 +234,10 @@
 
             if (winner === lastWinner && list.length > 1) {
                 adviceBox.innerHTML = '<b style="color:var(--accent)">大将军不答应！连吃两次太腻了，重抽！</b>';
-                adviceBox.style.display = 'block';
-                return;
+                adviceBox.style.display = 'block'; return;
             }
 
             spinBtn.disabled = true; orderSection.style.display = 'none'; adviceBox.style.display = 'none';
-            
             const itemHeight = 120;
             const targetOffset = (list.length * 2 + randomIndex) * itemHeight;
             container.style.transition = 'transform 3s cubic-bezier(0.1, 0, 0.1, 1)';
@@ -297,138 +246,80 @@
             setTimeout(() => {
                 spinBtn.disabled = false; lastWinner = winner; currentFullWinner = winner;
                 currentWinner = winner.replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
-                
                 confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-                
-                spinCount++; localStorage.setItem('spin_count', spinCount);
-                updateUI();
-
+                spinCount++; localStorage.setItem('spin_count', spinCount); updateUI();
                 adviceBox.textContent = advicesPool[Math.floor(Math.random() * advicesPool.length)];
-                adviceBox.style.display = 'block';
-                orderSection.style.display = 'flex';
-
+                adviceBox.style.display = 'block'; orderSection.style.display = 'flex';
                 setTimeout(() => {
                     container.style.transition = 'none';
                     container.style.transform = `translateY(-${randomIndex * itemHeight}px)`;
                 }, 500);
-            }, 3000);
+            }, 3200);
         }
 
-        // --- 摇一摇 ---
         let lastShake = 0;
         window.addEventListener('devicemotion', (e) => {
             const acc = e.accelerationIncludingGravity;
             if(!acc) return;
             const total = Math.abs(acc.x) + Math.abs(acc.y);
-            if (total > 25 && Date.now() - lastShake > 5000) {
-                lastShake = Date.now(); spin();
-            }
+            if (total > 25 && Date.now() - lastShake > 5000) { lastShake = Date.now(); spin(); }
         });
 
-        // --- 菜单编辑 ---
         function openEdit() {
             document.getElementById('edit-title').textContent = `编辑菜单 [${currentMode}]`;
-            document.getElementById('menu-edit-area').value = menus[currentMode].join('\n');
+            document.getElementById('menu-edit-area').value = (menus[currentMode] || []).join('\n');
             document.getElementById('edit-modal').style.display = 'flex';
         }
         function closeEdit(e) { document.getElementById('edit-modal').style.display = 'none'; }
         function saveMenu() {
-            menus[currentMode] = document.getElementById('menu-edit-area').value.split('\n').filter(i => i.trim());
+            const newMenus = document.getElementById('menu-edit-area').value.split('\n').filter(i => i.trim());
+            const updatedMenus = {...menus, [currentMode]: newMenus};
             fetch('/api/menus', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-User-Id': userId },
-                body: JSON.stringify(menus)
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-User-Id': userId, 'X-User-Code': userCode },
+                body: JSON.stringify(updatedMenus)
+            }).then(res => {
+                if(res.ok) { menus = updatedMenus; initList(); closeEdit(); }
+                else { alert("保存失败，请检查ID码！"); }
             });
-            initList(); closeEdit();
         }
 
         function requestCloudSync() {
-            const name = prompt("输入你的专属大将军代号：\n(已有档案输入原名即可)");
-            if(!name) return;
-            
-            const code = prompt(`你好，${name} 大将军！\n请输入你的身份ID码（自定义数字或字母）：\n(下次归位需凭此码同步数据)`);
-            if(!code) return;
-
-            // 如果本地已有不同名字，确认是否覆盖
-            if(userName && userName !== name) {
-                if(!confirm(`检测到当前已登录 ${userName}，是否切换到 ${name}？`)) return;
-            }
-            
+            const name = prompt("输入你的专属大将军代号："); if(!name) return;
+            const code = prompt(`大将军 ${name}！\n请输入你的身份ID码：\n(下次同步凭此码找回)`); if(!code) return;
             userName = name; userId = name; userCode = code;
             localStorage.setItem('terminator_user_id', userId);
             localStorage.setItem('terminator_user_name', userName);
             localStorage.setItem('terminator_user_code', userCode);
-            
-            // 尝试同步
-            fetchMenus(); 
-            updateUI();
+            fetchMenus(); updateUI();
         }
 
         function logout() {
-            localStorage.removeItem('terminator_user_id');
-            localStorage.removeItem('terminator_user_name');
-            localStorage.removeItem('terminator_user_code');
-            userId = 'guest_' + Math.random().toString(36).substr(2, 6);
-            userName = ''; userCode = '';
+            localStorage.clear(); userId = 'guest_' + Math.random().toString(36).substr(2, 6); userName = ''; userCode = '';
             updateUI(); initList();
         }
 
-        // --- 分享逻辑 ---
         function shareResult() {
             const text = `大将军御笔点将：今晚吃【${lastWinner}】！谁赞成？谁反对？👾\n\n传送阵: ${window.location.href}`;
-            if (navigator.share) {
-                navigator.share({ title: '点餐结果', text: text });
-            } else {
-                alert("已复制到剪贴板，快去发给微信好友吧！🚀");
-                const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-            }
+            if (navigator.share) { navigator.share({ title: '点餐结果', text: text }); }
+            else { alert("已复制到剪贴板！🚀"); const el = document.createElement('textarea'); el.value = text; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el); }
         }
 
-        // --- 海报生成 (书签风格) ---
         function generatePoster() {
-            const canvas = document.getElementById('poster-canvas');
-            const ctx = canvas.getContext('2d');
+            const canvas = document.getElementById('poster-canvas'); const ctx = canvas.getContext('2d');
             const themeColor = getComputedStyle(document.body).getPropertyValue('--primary').trim();
             const advice = adviceBox.textContent;
-
-            // 绘制背景
             ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,600,1000);
-            ctx.fillStyle = themeColor; ctx.fillRect(0,0,600,200);
-            
-            // 装饰圆
-            ctx.globalAlpha = 0.2;
-            ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(550, 50, 150, 0, Math.PI*2); ctx.fill();
-            ctx.globalAlpha = 1.0;
-
-            // 标题
+            ctx.fillStyle = themeColor; ctx.fillRect(0,0,600,220);
             ctx.fillStyle = '#ffffff'; ctx.font = 'bold 60px sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText('纠结终结者', 300, 100);
-            ctx.font = '30px sans-serif';
-            ctx.fillText('TAKEOUT TERMINATOR', 300, 150);
-
-            // 结果
-            ctx.fillStyle = '#1e293b'; ctx.font = '80px sans-serif';
-            ctx.fillText(currentFullWinner, 300, 450);
-            
-            // 文案
+            ctx.fillText('纠结终结者', 300, 100); ctx.font = '30px sans-serif'; ctx.fillText('TAKEOUT TERMINATOR', 300, 155);
+            ctx.fillStyle = '#1e293b'; ctx.font = '80px sans-serif'; ctx.fillText(currentFullWinner, 300, 480);
             ctx.fillStyle = '#64748b'; ctx.font = 'italic 32px sans-serif';
-            wrapText(ctx, `“ ${advice} ”`, 300, 600, 500, 45);
-
-            // 二维码区域
-            const qrSize = 180;
-            const qrX = 300 - qrSize/2;
-            const qrY = 750;
-            
-            // 调用 QR 接口
+            wrapText(ctx, `“ ${advice} ”`, 300, 620, 500, 45);
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(window.location.href)}`;
-            const qrImg = new Image();
-            qrImg.crossOrigin = "anonymous";
-            qrImg.src = qrUrl;
+            const qrImg = new Image(); qrImg.crossOrigin = "anonymous"; qrImg.src = qrUrl;
             qrImg.onload = () => {
-                ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
-                ctx.fillStyle = '#94a3b8'; ctx.font = '24px sans-serif';
-                ctx.fillText('长按扫码，大将军帮你选', 300, 970);
-                
-                // 显示弹窗
+                ctx.drawImage(qrImg, 210, 740, 180, 180);
+                ctx.fillStyle = '#94a3b8'; ctx.font = '24px sans-serif'; ctx.fillText('长按扫码，大将军帮你选', 300, 960);
                 document.getElementById('poster-img').src = canvas.toDataURL('image/png');
                 document.getElementById('poster-modal').style.display = 'flex';
             };
@@ -438,10 +329,8 @@
             let words = text.split(''); let line = '';
             for(let n = 0; n < words.length; n++) {
                 let testLine = line + words[n];
-                let metrics = context.measureText(testLine);
-                if (metrics.width > maxWidth && n > 0) {
-                    context.fillText(line, x, y); line = words[n]; y += lineHeight;
-                } else { line = testLine; }
+                if (context.measureText(testLine).width > maxWidth && n > 0) { context.fillText(line, x, y); line = words[n]; y += lineHeight; }
+                else { line = testLine; }
             }
             context.fillText(line, x, y);
         }
@@ -456,7 +345,6 @@
             setTimeout(() => { if (!document.hidden) window.location.href = h5Url; }, 2500);
         }
 
-        // 背景气泡初始化
         function createBubbles() {
             const wrap = document.getElementById('bubbles'); wrap.innerHTML = '';
             for(let i=0; i<8; i++) {
@@ -466,8 +354,8 @@
                 wrap.appendChild(b);
             }
         }
-        createBubbles();
-        updateUI(); fetchMenus();
+
+        createBubbles(); updateUI(); fetchMenus();
     </script>
 </body>
 </html>
