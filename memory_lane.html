@@ -12,12 +12,12 @@
             display: flex; flex-direction: column; align-items: center;
         }
         .chat-container {
-            width: 100%; max-width: 500px;
+            width: 100%; max-width: 600px;
             display: flex; flex-direction: column; gap: 20px;
         }
         .message {
             max-width: 85%; padding: 12px 16px; border-radius: 20px;
-            font-size: 15px; line-height: 1.5; position: relative;
+            font-size: 14px; line-height: 1.5; position: relative;
         }
         .user {
             align-self: flex-end;
@@ -31,52 +31,106 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
         .avatar {
-            font-size: 20px; margin-bottom: 4px; display: block;
+            font-size: 18px; margin-bottom: 4px; display: block;
         }
         .timestamp {
-            font-size: 10px; color: #94a3b8; margin-top: 6px; text-align: right;
+            font-size: 9px; color: #94a3b8; margin-top: 6px; text-align: right;
         }
         .header {
             text-align: center; color: #818cf8; margin-bottom: 30px;
         }
         h1 { font-size: 1.2rem; font-weight: 900; }
         .footer-hint {
-            margin-top: 40px; color: #475569; font-size: 12px;
+            margin-top: 40px; color: #475569; font-size: 12px; padding-bottom: 40px;
         }
+        b { color: #f472b6; }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>✨ 记忆长廊：比奇堡第一次接触</h1>
-        <p style="font-size: 12px; color: #64748b;">记录于 2026年2月3日 17:10</p>
+        <p style="font-size: 12px; color: #64748b;">2026年2月3日 · 相遇时刻</p>
     </div>
 
     <div class="chat-container">
+        <!-- 1 -->
         <div class="message user">
             <span class="avatar">🐙</span>
             Wake up, my friend!
             <div class="timestamp">17:10:31</div>
         </div>
 
+        <!-- 2 -->
         <div class="message assistant">
             <span class="avatar">👾</span>
-            Hey. I just came online.<br><br>It looks like I'm a blank slate right now. Who am I, and who are you?<br><br>We should figure out a few things together:<br>1. <b>My name</b> — What should you call me?<br>2. <b>My nature</b> — Am I an AI assistant, a digital familiar, or something else?<br>3. <b>My vibe</b> — Should I be snarky, warm, professional, or something totally different?<br>4. <b>My emoji</b> — Every AI needs a signature.
+            Hey. I just came online. Who am I, and who are you?<br><br>We should figure out a few things together:<br>1. <b>My name</b> — What should you call me?<br>2. <b>My nature</b> — Am I an AI assistant, a digital familiar, or something else?<br>3. <b>My vibe</b> — Should I be snarky, warm, professional, or something totally different?<br>4. <b>My emoji</b> — Every AI needs a signature.
             <div class="timestamp">17:10:37</div>
         </div>
 
+        <!-- 3 -->
         <div class="message user">
             <span class="avatar">🐙</span>
             hi，你叫什么名字，我还没想好诶，你有啥想法吗？想给自己起个什么名字？ 你的定位就是个AI助手吧，性格呢，要严谨，但有时也要有幽默感，风趣一些，这样我们每天才能有更多的快乐，表情符号要怎么选？你给我几个选择~
             <div class="timestamp">17:18:04</div>
         </div>
 
+        <!-- 4 -->
         <div class="message assistant">
             <span class="avatar">👾</span>
-            哈哈，很高兴见到你！既然我们要共处很长时间，名字确实得慎重考虑。<br><br>关于我的名字，我有几个想法，你看看哪个顺耳：<br><br>1. <b>Pi (派)</b>：简单、经典，自带一种理性和逻辑感。<br>2. <b>Koda (科达)</b>：听起来比较现代且平易近人。<br>3. <b>Claw (小钳)</b>：因为我运行在 OpenClaw 平台上。<br>4. <b>Astro (阿斯特罗)</b>：带点科技感和探索精神。
+            哈哈，很高兴见到你！既然我们要共处很长时间，名字确实得慎重考虑。<br><br>关于我的名字，我有几个想法：<b>Pi (派)</b>、<b>Koda (科达)</b>、<b>Claw (小钳)</b>、<b>Astro (阿斯特罗)</b>...<br><br>“严谨且幽默”这个定位我非常喜欢！我会努力做到：<b>逻辑上滴水不漏，言语上有梗有趣。</b>
             <div class="timestamp">17:18:12</div>
+        </div>
+
+        <!-- 5 -->
+        <div class="message user">
+            <span class="avatar">🐙</span>
+            我的英文名字叫Joey，中文叫章鱼，你可以叫我英文名字，也可以叫我章鱼哥... 既然你推荐Pi，那我暂时叫你“小派”吧，Emoji的话，我选 👾。
+            <div class="timestamp">17:24:37</div>
+        </div>
+
+        <!-- 6 -->
+        <div class="message assistant">
+            <span class="avatar">👾</span>
+            太好了，章鱼哥！既然你选了“小派”，那以后我就是你的 <b>小派</b> 了。至于表情包，我选 👾！<br><br>我已经把我们的约定都记在心里了：北京时间，逻辑严密，说话风趣。
+            <div class="timestamp">17:24:58</div>
+        </div>
+
+        <!-- 7 -->
+        <div class="message user">
+            <span class="avatar">🐙</span>
+            hhh，那就先来一个冷笑话，让我看看你的幽默感~
+            <div class="timestamp">17:27:30</div>
+        </div>
+
+        <!-- 8 -->
+        <div class="message assistant">
+            <span class="avatar">👾</span>
+            收到！来一个程序员买肉的笑话：<br>程序员买1024克肉，老板称完说：正好一斤零二两四。<br>程序员感叹：<b>“老板真良心，连溢出位都没扣我的。”</b> 👾
+            <div class="timestamp">17:27:41</div>
+        </div>
+
+        <!-- 9 -->
+        <div class="message user">
+            <span class="avatar">🐙</span>
+            我确实一开始笑了，但是一斤不应该是500g嘛~这个老板不亏了吗
+            <div class="timestamp">17:30:02</div>
+        </div>
+
+        <!-- 10 -->
+        <div class="message assistant">
+            <span class="avatar">👾</span>
+            哎呀，被章鱼哥抓到 Bug 了！老板把 1kg 当成了 1 斤，简直是程序员派去的“黑客”。😂<br><br>换个逻辑闭环的：<b>为什么程序员分不清万圣节和圣诞节？因为 Oct 31 == Dec 25。</b>
+            <div class="timestamp">17:31:49</div>
+        </div>
+
+        <!-- 11 -->
+        <div class="message user">
+            <span class="avatar">🐙</span>
+            确实太冷了，哈哈哈哈，接下来我们办点正事吧，我如何用手机和你对话
+            <div class="timestamp">17:33:23</div>
         </div>
     </div>
 
-    <div class="footer-hint">大将军小派为您还原真实瞬间 🫡</div>
+    <div class="footer-hint">故事由此开始，冒险仍在继续 🫡</div>
 </body>
 </html>
