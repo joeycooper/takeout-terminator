@@ -53,9 +53,9 @@
 
         .slot-wrapper { width: 100%; perspective: 1000px; margin: 0.5rem 0; }
         .slot-machine {
-            height: 120px; overflow: hidden; background: rgba(0, 0, 0, 0.5); border-radius: 1.5rem;
+            height: 120px; overflow: hidden; background: rgba(255, 255, 255, 0.05); border-radius: 1.5rem;
             border: 4px solid var(--primary); position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 40px rgba(99, 102, 241, 0.2);
         }
         .slot-container { position: absolute; width: 100%; transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1); }
         .slot-item { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; }
@@ -163,6 +163,34 @@
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playClick() {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            } catch(e){}
+        }
+        function playDing() {
+            try {
+                const osc1 = audioCtx.createOscillator();
+                const osc2 = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc1.type = 'sine'; osc2.type = 'sine';
+                osc1.frequency.setValueAtTime(880, audioCtx.currentTime);
+                osc2.frequency.setValueAtTime(1320, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                osc1.connect(gain); osc2.connect(gain); gain.connect(audioCtx.destination);
+                osc1.start(); osc2.start();
+                osc1.stop(audioCtx.currentTime + 0.5); osc2.stop(audioCtx.currentTime + 0.5);
+            } catch(e){}
+        }
         let userId = localStorage.getItem('terminator_user_id') || 'guest_' + Math.random().toString(36).substr(2, 6);
         let userName = localStorage.getItem('terminator_user_name') || '';
         let userCode = localStorage.getItem('terminator_user_code') || '';
@@ -243,10 +271,18 @@
             container.style.transition = 'transform 3s cubic-bezier(0.1, 0, 0.1, 1)';
             container.style.transform = `translateY(-${targetOffset}px)`;
             
+            // 播放咔哒咔哒声
+            let tickCount = 0;
+            const ticker = setInterval(() => {
+                playClick();
+                if (++tickCount >= 25) clearInterval(ticker);
+            }, 100);
+
             setTimeout(() => {
                 spinBtn.disabled = false; lastWinner = winner; currentFullWinner = winner;
                 currentWinner = winner.replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
                 confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+                playDing(); // 播放叮的一声
                 spinCount++; localStorage.setItem('spin_count', spinCount); updateUI();
                 adviceBox.textContent = advicesPool[Math.floor(Math.random() * advicesPool.length)];
                 adviceBox.style.display = 'block'; orderSection.style.display = 'flex';
