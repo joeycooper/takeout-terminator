@@ -195,6 +195,7 @@
         // --- 核心逻辑 ---
         let userId = localStorage.getItem('terminator_user_id') || 'guest_' + Math.random().toString(36).substr(2, 6);
         let userName = localStorage.getItem('terminator_user_name') || '';
+        let userCode = localStorage.getItem('terminator_user_code') || '';
         
         let menus = {
             all: ["🍔 汉堡薯条", "🍜 兰州拉面", "🍱 精致日料", "🍛 咖喱饭", "🥘 麻辣烫", "🍗 韩式炸鸡", "🥗 健康沙拉", "🍝 意式面点", "🥡 广式点心", "🍢 东北烧烤", "🍲 暖心小火锅", "🍚 煲仔饭"],
@@ -236,9 +237,19 @@
 
         async function fetchMenus() {
             try {
-                const res = await fetch('/api/menus', { headers: { 'X-User-Id': userId } });
-                if (res.ok) { menus = await res.json(); }
-                initList();
+                const res = await fetch('/api/menus', { 
+                    headers: { 
+                        'X-User-Id': userId,
+                        'X-User-Code': userCode
+                    } 
+                });
+                if (res.ok) { 
+                    menus = await res.json(); 
+                    initList();
+                } else if (res.status === 403) {
+                    alert("⚠️ 身份校验失败！ID码不正确，已切回访客模式。");
+                    logout();
+                }
             } catch (e) { initList(); }
         }
 
@@ -331,22 +342,34 @@
         }
 
         function requestCloudSync() {
-            const name = prompt("输入你的专属大将军代号：\n(已有档案输入原名可直接同步)");
-            if(name) {
-                // 如果本地已有不同名字，确认是否覆盖
-                if(userName && userName !== name) {
-                    if(!confirm(`检测到当前已登录 ${userName}，是否切换到 ${name}？`)) return;
-                }
-                
-                userName = name; userId = name;
-                localStorage.setItem('terminator_user_id', userId);
-                localStorage.setItem('terminator_user_name', userName);
-                
-                // 立即触发一次后端加载
-                fetchMenus(); 
-                updateUI();
-                alert(`同步成功！大将军 ${userName}，欢迎归位！👾`);
+            const name = prompt("输入你的专属大将军代号：\n(已有档案输入原名即可)");
+            if(!name) return;
+            
+            const code = prompt(`你好，${name} 大将军！\n请输入你的身份ID码（自定义数字或字母）：\n(下次归位需凭此码同步数据)`);
+            if(!code) return;
+
+            // 如果本地已有不同名字，确认是否覆盖
+            if(userName && userName !== name) {
+                if(!confirm(`检测到当前已登录 ${userName}，是否切换到 ${name}？`)) return;
             }
+            
+            userName = name; userId = name; userCode = code;
+            localStorage.setItem('terminator_user_id', userId);
+            localStorage.setItem('terminator_user_name', userName);
+            localStorage.setItem('terminator_user_code', userCode);
+            
+            // 尝试同步
+            fetchMenus(); 
+            updateUI();
+        }
+
+        function logout() {
+            localStorage.removeItem('terminator_user_id');
+            localStorage.removeItem('terminator_user_name');
+            localStorage.removeItem('terminator_user_code');
+            userId = 'guest_' + Math.random().toString(36).substr(2, 6);
+            userName = ''; userCode = '';
+            updateUI(); initList();
         }
 
         // --- 分享逻辑 ---
