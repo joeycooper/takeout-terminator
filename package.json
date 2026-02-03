@@ -1,0 +1,13 @@
+{
+  "name": "takeout-terminator",
+  "version": "1.0.0",
+  "description": "纠结终结者 - 拯救每一个不知道吃什么的灵魂",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "npx serve . -p 3000 & node server.js"
+  },
+  "keywords": [],
+  "author": "Joey & 小派",
+  "license": "MIT"
+}

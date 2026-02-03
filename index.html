@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>章鱼哥的餐点拯救者 - 11.0 修复版 👾</title>
+    <style>
+        :root {
+            --primary: #6366f1; --accent: #f43f5e; --bg: #0f172a; --card-bg: rgba(255, 255, 255, 0.05); --text: #ffffff;
+        }
+        body.theme-krabs { --primary: #f59e0b; --accent: #b91c1c; --bg: #450a0a; --card-bg: rgba(251, 191, 36, 0.1); }
+        body.theme-sponge { --primary: #fbbf24; --accent: #ea580c; --bg: #78350f; --card-bg: rgba(254, 240, 138, 0.1); }
+
+        body {
+            margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg); color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; overflow-x: hidden; transition: background 0.5s ease;
+        }
+
+        .container {
+            text-align: center; padding: 1.5rem; background: var(--card-bg); backdrop-filter: blur(15px);
+            border-radius: 2rem; border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); max-width: 400px; width: 85%; position: relative;
+        }
+
+        .top-bar { display: flex; justify-content: space-between; margin-bottom: 0.8rem; font-size: 0.7rem; color: #94a3b8; }
+        .weather-info { color: #818cf8; font-weight: bold; }
+
+        h1 {
+            font-size: 1.4rem; margin-bottom: 1rem;
+            background: linear-gradient(to right, #818cf8, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .mode-selector { display: flex; gap: 0.3rem; justify-content: center; margin-bottom: 1rem; }
+        .mode-btn { padding: 0.4rem 0.6rem; font-size: 0.7rem; border-radius: 0.5rem; border: 1px solid var(--primary); background: transparent; color: var(--primary); cursor: pointer; }
+        .mode-btn.active { background: var(--primary); color: white; }
+
+        .slot-machine {
+            height: 90px; overflow: hidden; background: rgba(0, 0, 0, 0.3); border-radius: 1rem;
+            border: 2px solid var(--primary); position: relative; margin-bottom: 1.5rem;
+        }
+        .slot-container { position: absolute; width: 100%; transition: transform 3s cubic-bezier(0.1, 0, 0.1, 1); }
+        .slot-item { height: 90px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; }
+
+        #spin-btn {
+            padding: 0.8rem; font-size: 1.1rem; font-weight: 600; background: var(--primary); color: white;
+            border: none; border-radius: 1rem; cursor: pointer; width: 100%; box-shadow: 0 8px 15px -3px rgba(99, 102, 241, 0.4);
+        }
+
+        .advice-box { margin-top: 1.2rem; padding: 0.8rem; background: rgba(0, 0, 0, 0.2); border-radius: 1rem; font-style: italic; font-size: 0.85rem; color: #cbd5e1; display: none; }
+        
+        .platform-section { display: none; margin-top: 1rem; }
+        .platform-grid { display: flex; gap: 0.4rem; margin-bottom: 1rem; }
+        .platform-btn { padding: 0.6rem 0.4rem; font-size: 0.75rem; border-radius: 0.5rem; border: none; color: white; cursor: pointer; flex: 1; }
+
+        .action-bar { display: flex; gap: 0.5rem; }
+        .icon-btn { background: rgba(255,255,255,0.1); border: none; color: white; padding: 0.5rem; border-radius: 0.5rem; font-size: 0.8rem; cursor: pointer; flex: 1; }
+
+        #edit-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8);
+            display: none; align-items: center; justify-content: center; z-index: 100;
+        }
+        .modal-content { background: #1e293b; padding: 2rem; border-radius: 1.5rem; width: 80%; max-width: 350px; }
+        textarea { width: 100%; height: 150px; background: #0f172a; color: white; border: 1px solid var(--primary); border-radius: 0.5rem; padding: 0.5rem; margin: 1rem 0; font-size: 1rem; }
+
+        .theme-switcher { position: absolute; top: -35px; right: 0; display: flex; gap: 0.5rem; }
+        .theme-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid white; cursor: pointer; }
+        
+        .shake-hint { font-size: 0.6rem; color: #64748b; margin-top: 0.5rem; }
+        .dupe-alert { color: var(--accent); font-weight: bold; }
+    </style>
+</head>
+<body class="theme-pi">
+    <div class="container">
+        <div class="theme-switcher">
+            <div class="theme-dot" style="background: #6366f1;" onclick="setTheme('pi')"></div>
+            <div class="theme-dot" style="background: #f59e0b;" onclick="setTheme('krabs')"></div>
+            <div class="theme-dot" style="background: #fbbf24;" onclick="setTheme('sponge')"></div>
+        </div>
+
+        <div class="top-bar">
+            <span id="weather-text" class="weather-info">🌤️ 杭州: 6°C</span>
+            <span id="meal-time">待命时间</span>
+        </div>
+
+        <h1 id="main-title">餐点拯救者 11.0</h1>
+
+        <div class="mode-selector">
+            <button class="mode-btn active" id="mode-all" onclick="setMode('all')">全都要</button>
+            <button class="mode-btn" id="mode-fit" onclick="setMode('fit')">要身材</button>
+            <button class="mode-btn" id="mode-night" onclick="setMode('night')">要快乐</button>
+        </div>
+        
+        <div class="slot-machine">
+            <div id="slot-container" class="slot-container"></div>
+        </div>
+
+        <button id="spin-btn" onclick="spin()">开始点将 / 摇一摇</button>
+        <div class="shake-hint">用力甩动手机也可以触发！</div>
+        
+        <div id="advice" class="advice-box"></div>
+
+        <div id="order-section" class="platform-section">
+            <div class="platform-grid">
+                <button class="platform-btn" onclick="openApp('ele')" style="background: linear-gradient(to right, #008cff, #ff5000);">饿了么/淘宝</button>
+                <button class="platform-btn" onclick="openApp('meituan')" style="background: #ffc300; color: #000;">美团外卖</button>
+                <button class="platform-btn" onclick="openApp('dianping')" style="background: #ff6633;">大众点评</button>
+            </div>
+            <div class="action-bar">
+                <button class="icon-btn" onclick="openEdit()">✍️ 编辑菜单</button>
+                <button class="icon-btn" onclick="shareResult()">📤 分享战果</button>
+            </div>
+        </div>
+        
+        <div class="footer">由派大星大将军荣誉出品 🫡</div>
+    </div>
+
+    <div id="edit-modal" onclick="closeEdit(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3>编辑菜单</h3>
+            <textarea id="menu-edit-area"></textarea>
+            <button id="spin-btn" onclick="saveMenu()">保存修改</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(freq, type, duration) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type; osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        let menus = {
+            all: ["🍔 汉堡薯条", "🍜 兰州拉面", "🍱 精致日料", "🍛 咖喱饭", "🥘 麻辣烫", "🍗 韩式炸鸡", "🥗 健康沙拉", "🍝 意式面点", "🥡 广式点心", "🍢 东北烧烤", "🍲 暖心小火锅", "🍚 煲仔饭", "🥟 杭州小笼包", "🍜 片儿川", "🍲 西湖牛肉羹"],
+            fit: ["🥗 鸡胸肉沙拉", "🥣 低脂燕麦", "🍣 刺身拼盘", "🥪 全麦三明治", "🍵 纯净果蔬汁", "🍲 清蒸鱼片"],
+            night: ["🍢 狂野烧烤", "🥘 劲爆小龙虾", "🍗 炸鸡啤酒", "🍜 螺蛳粉", "🍟 大份薯条", "🥨 脆皮五花肉"]
+        };
+
+        let history = JSON.parse(localStorage.getItem('takeout_history')) || [];
+        let currentMode = 'all';
+        let lastWinner = "";
+        let currentWinner = "";
+
+        const container = document.getElementById('slot-container');
+        const spinBtn = document.getElementById('spin-btn');
+        const adviceBox = document.getElementById('advice');
+        const orderSection = document.getElementById('order-section');
+
+        async function fetchMenus() {
+            try {
+                const res = await fetch('/api/menus');
+                if (res.ok) {
+                    menus = await res.json();
+                    initList();
+                }
+            } catch (e) {
+                const saved = localStorage.getItem('takeout_menus');
+                if(saved) menus = JSON.parse(saved);
+                initList();
+            }
+        }
+
+        function initList() {
+            container.innerHTML = '';
+            const list = menus[currentMode];
+            const displayList = [...list, ...list, ...list];
+            displayList.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'slot-item';
+                div.textContent = item;
+                container.appendChild(div);
+            });
+            container.style.transition = 'none';
+            container.style.transform = `translateY(0)`;
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('mode-' + mode).classList.add('active');
+            initList();
+        }
+
+        function setTheme(theme) { document.body.className = `theme-${theme}`; }
+
+        function spin() {
+            if (spinBtn.disabled) return;
+            const list = menus[currentMode];
+            let randomIndex = Math.floor(Math.random() * list.length);
+            let winner = list[randomIndex];
+
+            if (winner === lastWinner && list.length > 1) {
+                adviceBox.innerHTML = '<span class="dupe-alert">大将军不答应！连吃两次太腻了，重抽！</span>';
+                adviceBox.style.display = 'block';
+                playSound(150, 'square', 0.2);
+                return;
+            }
+
+            spinBtn.disabled = true;
+            orderSection.style.display = 'none';
+            adviceBox.style.display = 'none';
+            
+            let count = 0;
+            const clicker = setInterval(() => {
+                playSound(400 + Math.random() * 200, 'sine', 0.05);
+                if (++count > 20) clearInterval(clicker);
+            }, 100);
+
+            const itemHeight = 90;
+            const targetOffset = (list.length * 2 + randomIndex) * itemHeight;
+            container.style.transition = 'transform 3s cubic-bezier(0.1, 0, 0.1, 1)';
+            container.style.transform = `translateY(-${targetOffset}px)`;
+            
+            setTimeout(() => {
+                spinBtn.disabled = false;
+                lastWinner = winner;
+                currentWinner = winner.replace(/[\u{1F300}-\u{1F9FF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '').trim();
+                
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                playSound(800, 'sine', 0.1);
+                
+                let adviceText = "大将军建议：第一眼选中的就是缘分！";
+                const countInHistory = history.filter(h => h.w === winner).length;
+                if(countInHistory > 2) adviceText = `章鱼哥！这周第${countInHistory+1}次选它了，你的腹肌在哭泣！😭`;
+                if(winner.includes("火锅") || winner.includes("汤") || winner.includes("面")) adviceText += " (外面冷，吃这个暖和！🌡️)";
+
+                adviceBox.textContent = adviceText;
+                adviceBox.style.display = 'block';
+                orderSection.style.display = 'block';
+
+                history.push({t: Date.now(), w: winner});
+                if(history.length > 20) history.shift();
+                localStorage.setItem('takeout_history', JSON.stringify(history));
+
+                setTimeout(() => {
+                    container.style.transition = 'none';
+                    container.style.transform = `translateY(-${randomIndex * itemHeight}px)`;
+                }, 500);
+            }, 3000);
+        }
+
+        let lastShake = 0;
+        window.addEventListener('devicemotion', (e) => {
+            const acc = e.accelerationIncludingGravity;
+            if(!acc) return;
+            const total = Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z);
+            if (total > 30 && Date.now() - lastShake > 5000) {
+                lastShake = Date.now();
+                spin();
+            }
+        });
+
+        function openEdit() {
+            document.getElementById('menu-edit-area').value = menus[currentMode].join('\n');
+            document.getElementById('edit-modal').style.display = 'flex';
+        }
+        function closeEdit(e) { document.getElementById('edit-modal').style.display = 'none'; }
+        function saveMenu() {
+            const newMenus = document.getElementById('menu-edit-area').value.split('\n').filter(i => i.trim());
+            menus[currentMode] = newMenus;
+            fetch('/api/menus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(menus)
+            });
+            localStorage.setItem('takeout_menus', JSON.stringify(menus));
+            initList();
+            closeEdit();
+        }
+
+        function shareResult() {
+            const text = `大将军御笔点将：今晚吃【${lastWinner}】！谁赞成？谁反对？👾🐙`;
+            if (navigator.share) {
+                navigator.share({ title: '点餐结果', text: text, url: window.location.href });
+            } else {
+                const input = document.createElement('textarea');
+                input.value = text + "\n直达光缆: " + window.location.href;
+                document.body.appendChild(input); input.select();
+                document.execCommand('copy'); document.body.removeChild(input);
+                alert("已复制到剪贴板！请直接发给微信好友。🚀");
+            }
+        }
+
+        function openApp(type) {
+            const query = encodeURIComponent(currentWinner);
+            let h5Url, appUrl;
+            if (type === 'ele') { h5Url = `https://h5.ele.me/minisearch/result?keyword=${query}`; appUrl = `eleme://search?keyword=${query}`; }
+            else if (type === 'meituan') { h5Url = `https://h5.waimai.meituan.com/waimai/mindex/searchresults?keyword=${query}`; appUrl = `imeituan://www.meituan.com/s/${query}`; }
+            else { h5Url = `https://m.dianping.com/shoplist/3/search?keyword=${query}`; appUrl = `dianping://searchshoplist?keyword=${query}`; }
+            window.open(appUrl, '_blank');
+            setTimeout(() => { if (!document.hidden) window.location.href = h5Url; }, 2500);
+        }
+
+        const hour = new Date().getHours();
+        document.getElementById('meal-time').textContent = hour < 10 ? "早餐时间" : hour < 14 ? "午餐时间" : hour < 17 ? "下午茶时间" : hour < 21 ? "晚餐时间" : "夜宵时间";
+        fetchMenus();
+    </script>
+</body>
+</html>
